@@ -1,9 +1,10 @@
 var installedApps = {};
+var intervalId = setInterval(menuMore, 1000);
 
 /* Main javascript (onload Events) */
 async function main() {
   setCurrentWallpaper();
-  menuMore();
+  
   if(true) {
     document.getElementById('settings-user').innerHTML = 'HelloWorld';
   } else {
@@ -40,6 +41,9 @@ function debugMode(mode){
 
 /* right click event on desktop */
 function deskClick() {
+    if(document.fullscreenElement == null) {
+      document.documentElement.requestFullscreen();
+    }
     if (document.addEventListener) {
         document.addEventListener('contextmenu', function(e) {
             rightClick("open");
@@ -321,6 +325,7 @@ function getDate(id) {
 
 /* Get Battery Percentage */
 function getBattery() {
+  try {
   navigator.getBattery()
     .then(function(battery) {
     var batteryLvl = battery.level;
@@ -349,14 +354,21 @@ function getBattery() {
       }
     }
   });
+} catch (e) {
+  document.getElementById("desktopMenu-More-Batt").src = "img/battery_charging_full_white_24dp.svg";
+}
 }
 
 function hoverMenuBatteryGet() {
+  try {
     navigator.getBattery()
     .then(function battery(battery) {
       var batteryLevel = battery.level;
       hoverMenuBatterySet(battery.level, battery.charging, Math.round((battery.dischargingTime / 60)), battery.chargingTime);
   });
+  } catch (e) {
+    hoverMenuBatterySet(1.0, false, 12*60, 0);
+  }
 }
 
 function hoverMenuBatterySet(percent, charging, discharge, chargingTime){

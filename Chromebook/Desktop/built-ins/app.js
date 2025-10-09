@@ -163,12 +163,13 @@ export class BaseApp {
     EnableDragging() {
         var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
         if (this.appHeader) {
-            this.appHeader.onpointerdown = dragMouseDown;
+            this.appHeader.onmousedown = dragMouseDown;
+            this.appHeader.addEventListener('touchstart', dragMouseDown, { passive: false });
         }
 
         let elmnt = this.appDiv;
         let parent = this;
-
+        let l = "t";
         function dragMouseDown(e) {
             parent.focusApp();
             e = e || window.event;
@@ -176,19 +177,21 @@ export class BaseApp {
             // get the mouse cursor position at startup:
             pos3 = e.clientX;
             pos4 = e.clientY;
-            document.onpointerup = closeDragElement;
+            document.onmouseup = closeDragElement;
             // call a function whenever the cursor moves:
-            document.onpointermove = elementDrag;
+            document.onmousemove = elementDrag;
+            document.addEventListener('touchmove', elementDrag, { passive: false });
+            document.addEventListener('touchend', closeDragElement);
         }
 
         function elementDrag(e) {
             e = e || window.event;
             e.preventDefault();
             // calculate the new cursor position:
-            pos1 = pos3 - e.clientX;
-            pos2 = pos4 - e.clientY;
-            pos3 = e.clientX;
-            pos4 = e.clientY;
+            pos1 = pos3 - (e.touches ? e.touches[0].clientX : e.clientX);
+            pos2 = pos4 - (e.touches ? e.touches[0].clientY : e.clientY);
+            pos3 = e.touches ? e.touches[0].clientX : e.clientX;
+            pos4 = e.touches ? e.touches[0].clientY : e.clientY;
             // set the element's new position:
             elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
             elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
@@ -196,8 +199,10 @@ export class BaseApp {
 
         function closeDragElement() {
             // stop moving when mouse button is released:
-            document.onpointerup = null;
-            document.onpointermove = null;
+            document.onmouseup = null;
+            document.onmousemove = null;
+            document.removeEventListener('touchmove', elementDrag);
+            document.removeEventListener('touchend', closeDragElement);
         }
     }
 }

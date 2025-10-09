@@ -24,7 +24,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   </head>
-  <body id="body" class="body" onload="main();" onmousemove="menuMore();">
+  <body id="body" class="body" onload="main();">
     <div id="nightLight" class="night-light-off"></div>
     <div id="rightClick" class="rightClick">
       <table class="settings-table">
@@ -222,7 +222,7 @@
       <br><br>
       <hr style="width: 75%; margin-top: -50px;">
       <div class="settings-grid-container">
-        <div style="" class="settings-item2">
+        <div class="settings-item2">
           <b style="font-size: 18px; color: grey">Settings</b>
           <table style="border-spacing: 0 5px;" width="240px">
             <tr class="settings-menu-item">
@@ -855,7 +855,7 @@
       
     </div><!-- settingsMain -->
     
-    <div id="desktop" class="desktop" onmouseenter="deskClick();" onmousedown="closeWallpaper();" onclick="rightClick('close'); deskClick();">
+    <div id="desktop" class="desktop" onmousedown="closeWallpaper();" onclick="rightClick('close'); deskClick();">
       <img id="background" class="background" src="img/defaultWallpaper.jpg" alt="defaultWallpaper">
       <div id="searchApps" class="searchApps-Closed">
         <div id="searchApps-Center" class="searchApps-Center">
