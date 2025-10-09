@@ -80,6 +80,8 @@ const TokenType =
     _close_paren:   "close_paren",
     _value:         "value",
     _separator:     "separator",
+    _equals:        "equals",
+    _var_decl:       "var_decl",
 };
 
 function isAlpha(char)
@@ -109,15 +111,15 @@ class Tokenizer {
     constructor() {}
 
     runCommand(text_command) {
-        this.tokenize(text_command)
-
         let tokens = this.tokenize(text_command);
-
+        if(tokens == {}) return;
         console.log(tokens);
+
+        this.parseTokens(tokens);
     }
 
     tokenize(text_command) {
-        let tokens = new Array()
+        let tokens = []
         for(let c = 0; c < text_command.length; c++) {
             if(isAlpha(text_command[c])) {
                 let name = text_command[c];
@@ -126,7 +128,12 @@ class Tokenizer {
                         name += text_command[++c];
                 }
                 
-                tokens.push(new Token(TokenType._ident, name));
+                if(name == "exit")
+                    tokens.push(new Token(TokenType._exit, name));
+                else
+                    tokens.push(new Token(TokenType._ident, name));
+
+                continue;
             }
 
             if(isNumeric(text_command[c])) {
@@ -137,20 +144,81 @@ class Tokenizer {
                 }
                 
                 tokens.push(new Token(TokenType._value, value));
+                continue;
             }
 
-            if(text_command[c] == ",")
-                tokens.push(new Token(TokenType._separator, ""));
-            if(text_command[c] == "(")
+            if(text_command[c] == "(") {
                 tokens.push(new Token(TokenType._open_paren, ""));
-            if(text_command[c] == ")")
+                continue;
+            }
+            if(text_command[c] == ")") {
                 tokens.push(new Token(TokenType._close_paren, ""));
+                continue;
+            }
+            if(text_command[c] == ",") {
+                tokens.push(new Token(TokenType._separator, ""));
+                continue;
+            }
+            if(text_command[c] == "=") {
+                tokens.push(new Token(TokenType._equals, ""))
+                continue;
+            }
+            if(text_command[c] == "@") {
+                tokens.push(new Token(TokenType._var_decl, ""));
+                continue;
+            }
+
 
             if(isWhitespace(text_command))
                 continue;
+
+            let error_fmt = "";
+            for(let t = 0; t < text_command.length; t++) { 
+                if(t == c)
+                    error_fmt += "\x1B[4m\`";
+                error_fmt += text_command[t]
+                if(t == c)
+                    error_fmt += "\`\x1B[0m";
+            }
+            
+            console.error(`Unexpected Syntax: ${text_command[c]} in ${error_fmt}`);
+            return {};
         }
 
         return tokens;
+    }
+
+    parseTokens(tokens) {
+        for(let t = 0; t < tokens.length; t++) {
+            switch(tokens[t].token_type) {
+                case TokenType._exit:
+                    if( (tokens[t+1] == undefined && tokens[t+2] == undefined) ||
+                        tokens[++t].token_type != TokenType._open_paren ||
+                        tokens[++t].token_type != TokenType._close_paren)
+                        console.error(`Syntax Error after \`${tokens[t].token_type}\` \n\texpected: \`()\``);
+                    else
+                        console.info("Should Exit");
+                    break
+                case TokenType._var_decl:
+                    if(tokens[t+1].token_type != TokenType._ident || tokens[t+1] == undefined)
+                        console.error(`Syntax Error after \`@\` \n\texpected a variable identifier`);
+                    else
+                        console.info(`Variable declared \`${tokens[++t].value}\``);
+                    break;
+                case TokenType._ident:
+                    if(tokens[t+1] == undefined || tokens[t+1].token_type != TokenType._open_paren)
+                        console.error(`Syntax Error after \`${tokens[t].value}\` \n\texpexted: \`(\``)
+                    else
+                    {
+                        console.info(`Called Function: ${tokens[t].value}`);
+                        t+= 2; //Consume the parens since I haven't implement checking for args
+                    }
+                    break;
+                default:
+                    console.error("Unexpected Syntax!");
+            }
+
+        }
     }
 
 }
