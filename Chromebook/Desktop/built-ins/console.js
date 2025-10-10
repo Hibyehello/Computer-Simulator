@@ -10,6 +10,7 @@ export class devConsole extends BaseApp {
         this.appDiv.style.flexFlow = "column";
         this.appDiv.style.background = "#000000C8";
         this.appDiv.style.backdropFilter = "blur(5px)";
+        this.dev_text;
 
         this.createHeader("fft", true);
         this.appHeader.style.background = "white";
@@ -19,12 +20,17 @@ export class devConsole extends BaseApp {
 
         this.initalizeConsole = this.initalizeConsole.bind(this)
 
+        console.log = this._log.bind(this);
+        console.info = this._info.bind(this);
+        console.warn = this._warn.bind(this);
+        console.error = this._error.bind(this);
+
         this.createIcon("img/terminal_35dp_FFFFFF_FILL0_wght400_GRAD0_opsz40.png");
     }
 
     initalizeConsole() {
-        let dev_text = document.createElement("div");
-        dev_text.classList.add("dev-text-container")
+        this.dev_text = document.createElement("div");
+        this.dev_text.classList.add("dev-text-container")
 
         let input_div = document.createElement("form");
         input_div.classList.add("dev-input-container")
@@ -53,8 +59,57 @@ export class devConsole extends BaseApp {
         input_div.appendChild(dev_input);
         input_div.appendChild(clear_btn);
 
-        this.appDiv.appendChild(dev_text);
+        this.appDiv.appendChild(this.dev_text);
         this.appDiv.appendChild(input_div);
+    }
+
+    _Log = console.log;
+    _Info = console.info;
+    _Warn = console.warn;
+    _Error = console.error;
+
+    _log(...args) {
+        var log = document.createElement("span");
+        log.classList.add("log");
+        log.innerText = "System Log: " + args.toString().replace(/,/g, " ");
+
+        this.dev_text.appendChild(log);
+        this.dev_text.appendChild(document.createElement("br"));
+
+        _Log.apply(console, args);
+    }
+
+    _info(...args) {
+        var log = document.createElement("span");
+        log.classList.add("info");
+        log.innerText = "System Info: " + args.toString().replace(/,/g, " ");
+
+        this.dev_text.appendChild(log);
+        this.dev_text.appendChild(document.createElement("br"));
+
+        _Info.apply(console, args);
+    }
+
+    _warn(...args) {
+        var log = document.createElement("span");
+        log.classList.add("warn");
+        log.innerText = "System Warn: " + args.toString().replace(/,/g, " ");
+
+        this.dev_text.appendChild(log);
+        this.dev_text.appendChild(document.createElement("br"));
+
+        _Warn.apply(console, args);
+    }
+
+    _error(...args) {
+        var log = document.createElement("span");
+        log.classList.add("error");
+        log.innerText = "System Error: " + args.toString().replace(/,/g, " ");
+
+        this.dev_text.appendChild(log);
+        this.dev_text.appendChild(document.createElement("br"));
+
+        _Error.apply(console, args);
     }
 }
 
@@ -81,7 +136,8 @@ const TokenType =
     _value:         "value",
     _separator:     "separator",
     _equals:        "equals",
-    _var_decl:       "var_decl",
+    _var_decl:      "var_decl",
+    _semi_colon:    "semi_colon"
 };
 
 function isAlpha(char)
@@ -107,13 +163,22 @@ class Token
     }
 }
 
+class NodeVar {
+    constructor(name, value) {
+        this.name = name;
+        this.value = value;
+    }
+}
+
 class Tokenizer {
-    constructor() {}
+    constructor() {
+        this.m_variables = []
+    }
 
     runCommand(text_command) {
+        console.info(`Entered Command: ${text_command}`);
         let tokens = this.tokenize(text_command);
         if(tokens == {}) return;
-        console.log(tokens);
 
         this.parseTokens(tokens);
     }
@@ -167,21 +232,16 @@ class Tokenizer {
                 tokens.push(new Token(TokenType._var_decl, ""));
                 continue;
             }
+            if(text_command[c] == ";") {
+                tokens.push(new Token(TokenType._semi_colon, ""));
+                continue;
+            }
 
 
             if(isWhitespace(text_command))
                 continue;
-
-            let error_fmt = "";
-            for(let t = 0; t < text_command.length; t++) { 
-                if(t == c)
-                    error_fmt += "\x1B[4m\`";
-                error_fmt += text_command[t]
-                if(t == c)
-                    error_fmt += "\`\x1B[0m";
-            }
             
-            console.error(`Unexpected Syntax: ${text_command[c]} in ${error_fmt}`);
+            console.error(`Syntax Error: got ${text_command[c]} in \`${text_command}\``);
             return {};
         }
 
@@ -195,27 +255,83 @@ class Tokenizer {
                     if( (tokens[t+1] == undefined && tokens[t+2] == undefined) ||
                         tokens[++t].token_type != TokenType._open_paren ||
                         tokens[++t].token_type != TokenType._close_paren)
-                        console.error(`Syntax Error after \`${tokens[t].token_type}\` \n\texpected: \`()\``);
+                        console.error(`Syntax Error after \`${tokens[t].token_type}\` \n\tExpected: \`()\``);
                     else
                         console.info("Should Exit");
                     break
                 case TokenType._var_decl:
                     if(tokens[t+1].token_type != TokenType._ident || tokens[t+1] == undefined)
                         console.error(`Syntax Error after \`@\` \n\texpected a variable identifier`);
-                    else
-                        console.info(`Variable declared \`${tokens[++t].value}\``);
+                    else {
+                        if(tokens[++t].value in this.m_variables && 
+                            (tokens[t+1] != undefined && tokens[t+1].token_type == TokenType._semi_colon)) {
+                                let var_name = tokens[t].value;
+                                console.log(this.m_variables[var_name]);
+                        } else if(tokens[t+1] != undefined && tokens[t+1].token_type == TokenType._equals) {
+                            let name = tokens[t].value; // store name and consume
+                            if(tokens[t+1] == undefined || tokens[t+1].token_type != TokenType._equals) {
+                                console.error(`Syntax Error after \`${name}\` \n\texpected an \`=\``);
+                                return;
+                            }
+                            t++; // Consume the Identifier
+                            if(tokens[t+1] == undefined || tokens[t+1].token_type != TokenType._value)
+                            {
+                                console.error(`Syntax Error after \`${name}\` \n\texpected a value`);
+                                return;
+                            }
+
+                            t++; // Consume the Equals
+
+                            let value = tokens[t++].value; // Store number and consume
+
+                            this.m_variables[name] = value;
+
+                            if(tokens[t] == undefined || tokens[t].token_type != TokenType._semi_colon) {
+                                console.error(`Syntax Error: Expected a \`;\``);
+                            }
+                        } else if(tokens[t+1] == undefined) {
+                            console.error(`Syntax Error: Expected a \`;\``);
+                        } else {
+                            console.error(`Undefined Variable: \`${tokens[t].value}\``)
+                        }
+                    }
+                        t++;
                     break;
                 case TokenType._ident:
+                    var func_name = tokens[t].value;
                     if(tokens[t+1] == undefined || tokens[t+1].token_type != TokenType._open_paren)
-                        console.error(`Syntax Error after \`${tokens[t].value}\` \n\texpexted: \`(\``)
+                        console.error(`Syntax Error after \`${tokens[t].value}\` \n\tExpected: \`(\``)
                     else
                     {
-                        console.info(`Called Function: ${tokens[t].value}`);
-                        t+= 2; //Consume the parens since I haven't implement checking for args
+                        t++; // Consume Open Parenthese
+                        let args = []
+                        while(true) {
+                            if(tokens[t+1].token_type == TokenType._ident) {
+                                let var_name = tokens[++t].value;
+                                if(this.m_variables[var_name] == undefined) {
+                                    console.error(`Undefined Variable: \`${var_name}\``);
+                                } else {
+                                    args.push(this.m_variables[var_name]);
+                                }
+                            }
+                            else if(tokens[t+1].token_type == TokenType._value)
+                                args.push(tokens[++t].value);
+                            else if(tokens[t+1].token_type == TokenType._separator)
+                                t++;
+                            else if(tokens[t+1].token_type == TokenType._close_paren || tokens[t+1] == undefined)
+                                break;
+                        }
+                        t+=2; // Consume Last Args & Closing parenthese
+                        if(tokens[t]== undefined || tokens[t].token_type != TokenType._semi_colon){
+                            console.error(`Syntax Error: Expected a \`;\``);
+                            return;
+                        }
+                        t++; // Consume Semicolon
+                        console.log(func_name, args);
                     }
                     break;
                 default:
-                    console.error("Unexpected Syntax!");
+                    console.error("Syntax Error!");
             }
 
         }
