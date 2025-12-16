@@ -620,7 +620,7 @@ function devConsoleInput() {
         hideDesk();
         devCommand();
     } else if (devInput === "autoHideShelf()") {
-        autoHideDesk();
+        autohideShelf();
         devCommand();
     } else if (devInput === "getBattery()") {
         hoverMenuBatteryGet();

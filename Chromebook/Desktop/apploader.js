@@ -2,7 +2,9 @@ const InstalledModules = new Map();
 let focusedApp;
 
 // Declared here to be a spot for any app to be able to access specific functions, much like a syscall
-const builtinFunctions = ["sys_log"];
+const builtinFunctions = ["sys_log", "clear", "close", "openCalc", "toggleSearchApps", "logOut", "lock",
+    "openSettings", "toggleSearchAppsBig", "main", "power", "restart", "showDesk", "hideDesk", "autohideShelf",
+    "getBattery", "devCommand", "devVar"];
 
 async function loadApp(path) {
     let moduleName = path.match(/[^/]+(?=(?:\.[^.]+)?$)/)[0];
@@ -19,7 +21,7 @@ function FocusApp(element) {
     focusedApp = element;
 
     console.log("Old Focused:", oldFocused);
-    if (oldFocused != undefined) {
+    if (oldFocused !== undefined) {
         oldFocused.unfocusApp();
     }
 
