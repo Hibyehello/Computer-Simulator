@@ -1,25 +1,32 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1MG3HKSRY1"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha3/0.9.3/sha3.js"
+            integrity="sha512-y7izOCWTqpz8t9UOs2gdo+ikf+Kpejwdb5Y8cIpUxE4ifxtwa95nr8mG9KVxdCFKyFgtYxZ1W+MF1ZzrfG6eBA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-  
-    gtag('config', 'G-1MG3HKSRY1');
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag('config', 'G-1MG3HKSRY1');
     </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>Computer Simulator</title>
-    <link href="style.css" rel="stylesheet" type="text/css" />
-		<script src="script.js"></script>
-  </head>
-  <body onload="main();">
-    <div id="lockScreen" class="lockScreen">
-      <div class="background"></div>
-      <div id="signUp" class="signUp">
+    <link href="style.css" rel="stylesheet" type="text/css"/>
+    <script src="script.js"></script>
+</head>
+<body onload="main();">
+<div id="lockScreen" class="lockScreen">
+    <div class="background"></div>
+    <div id="signUp" class="signUp">
         <img class="accountImg" src="Desktop/img/account_circle_white_24dp.svg">
         <p>Other User&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size: 0.5em;">╲╱</span></p>
         <!-- <hr> -->
@@ -29,7 +36,7 @@
         <input id="signUpPass" class="signUpPass" type="password" placeholder="Password" value="" onchange="signUp();">
         <div class="brake-small"></div>
         <input id="signUpSub" class="signUpSub" onclick="signUp();" type="button" value="">
-      </div>
     </div>
-  </body>
+</div>
+</body>
 </html>

@@ -4,3 +4,5 @@ ver 09/19/25 - Update Computer Simulator: Rewrite the application system to be p
 ver 09/20/25 - Fixed Focusing
 ver 09/21/25 - Focus while dragging, rename dragElement to EnableDragging and move into BaseApp
 ver 10/09/25 - Basic Tokenizer Abilities added, Updates for Phone usage
+ver 12/14/25 - Added a syntax Markdown file for describing cs-sh syntax, added ability to call built-in JavaScript functions
+ver 12/16/25 - Added string support to the tokenizer

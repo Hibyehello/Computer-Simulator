@@ -29,7 +29,7 @@ export class BaseApp {
         this.appDiv.style.display = this.displayType;
         document.body.appendChild(this.appDiv);
 
-        if(this.appHeader && this.appHeader.onmousedown == null) { 
+        if (this.appHeader && this.appHeader.onmousedown == null) {
             this.EnableDragging();
         }
         this.focusApp();
@@ -39,7 +39,7 @@ export class BaseApp {
     minimizeApp() {
         this.appDiv.style.display = "none";
     }
-    
+
     maximizeApp() {
         console.log("TODO: Implement maximize");
     }
@@ -53,14 +53,14 @@ export class BaseApp {
         this.appDiv.classList.add(className);
     }
 
-    createHeader(showButtons="ttt", showName=false) {
+    createHeader(showButtons = "ttt", showName = false) {
         this.appHeader = document.createElement("div");
         this.appHeader.classList.add("app-menu");
         this.appHeader.id = this.appDiv.id + "-header";
 
         this.appHeader.addEventListener("click", this.focusApp);
 
-        if(showName) {
+        if (showName) {
             let appNameDisplay = document.createElement("p")
             appNameDisplay.innerHTML = this.id;
             this.appHeader.appendChild(appNameDisplay);
@@ -75,43 +75,39 @@ export class BaseApp {
         var windowMenu = document.createElement("table");
         windowMenu.classList.add("app-menu-close");
 
-    if(buttons[0] == "t")
-    { // Minimize
-        var minImg = document.createElement("img");
-        minImg.classList.add("settings-option");
-        minImg.addEventListener("mouseup", this.minimizeApp );
-        minImg.src = "img/minimize_black_24dp.svg";
+        if (buttons[0] == "t") { // Minimize
+            var minImg = document.createElement("img");
+            minImg.classList.add("settings-option");
+            minImg.addEventListener("mouseup", this.minimizeApp);
+            minImg.src = "img/minimize_black_24dp.svg";
 
-        windowMenu.appendChild(minImg);
-    }
+            windowMenu.appendChild(minImg);
+        }
 
-    if(buttons[1] == "t")
-    { // Fullscreen
-        var maxImg = document.createElement("img");
-        maxImg.classList.add("settings-option");
-        maxImg.addEventListener("mouseup", this.maximizeApp );
-        maxImg.src = "img/fullscreen_black_24dp.svg";
+        if (buttons[1] == "t") { // Fullscreen
+            var maxImg = document.createElement("img");
+            maxImg.classList.add("settings-option");
+            maxImg.addEventListener("mouseup", this.maximizeApp);
+            maxImg.src = "img/fullscreen_black_24dp.svg";
 
-        windowMenu.appendChild(maxImg);
-    }
+            windowMenu.appendChild(maxImg);
+        }
 
-    if(buttons[2] == "t")
-    { // Close
-        var closeImg = document.createElement("img");
-        closeImg.classList.add("settings-option");
-        closeImg.addEventListener("mouseup", this.closeApp );
-        closeImg.src = "img/close_black_24dp.svg";
+        if (buttons[2] == "t") { // Close
+            var closeImg = document.createElement("img");
+            closeImg.classList.add("settings-option");
+            closeImg.addEventListener("mouseup", this.closeApp);
+            closeImg.src = "img/close_black_24dp.svg";
 
-        windowMenu.appendChild(closeImg);
-    }
-
+            windowMenu.appendChild(closeImg);
+        }
 
 
         return windowMenu
     }
 
     focusApp() {
-        if(!this.focused) {
+        if (!this.focused) {
             console.log(this);
             this.focused = FocusApp(this);
             this.appDiv.classList.add("window-App-On-Top");
@@ -142,11 +138,11 @@ export class BaseApp {
     }
 
     InstallApp() {
-        if(this.installed) {
+        if (this.installed) {
             console.error(this.appDiv.id, "is already installed!")
             return;
         }
-        if(!this.icon) {
+        if (!this.icon) {
             console.error(this.appDiv.id, "cannot be installed: No icon error!");
             return;
         }
@@ -164,12 +160,13 @@ export class BaseApp {
         var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
         if (this.appHeader) {
             this.appHeader.onmousedown = dragMouseDown;
-            this.appHeader.addEventListener('touchstart', dragMouseDown, { passive: false });
+            this.appHeader.addEventListener('touchstart', dragMouseDown, {passive: false});
         }
 
         let elmnt = this.appDiv;
         let parent = this;
         let l = "t";
+
         function dragMouseDown(e) {
             parent.focusApp();
             e = e || window.event;
@@ -180,7 +177,7 @@ export class BaseApp {
             document.onmouseup = closeDragElement;
             // call a function whenever the cursor moves:
             document.onmousemove = elementDrag;
-            document.addEventListener('touchmove', elementDrag, { passive: false });
+            document.addEventListener('touchmove', elementDrag, {passive: false});
             document.addEventListener('touchend', closeDragElement);
         }
 
